@@ -1,0 +1,33 @@
+---
+# clang-tidy configuration for FrostVistaOS (freestanding RISC-V kernel)
+#
+# Principles:
+#   - Focus on bug detection over style (style is handled by .clang-format)
+#   - Respect kernel coding conventions (short names, single-line ifs, magic numbers)
+#   - No C++ checks — this is a pure C codebase
+
+Checks: >
+  -*,
+  bugprone-*,
+  performance-*,
+  readability-*,
+  misc-*,
+  -readability-braces-around-statements,
+  -readability-else-after-return,
+  -readability-function-cognitive-complexity,
+  -readability-identifier-length,
+  -readability-magic-numbers,
+  -readability-non-const-parameter,
+  -readability-suspicious-call-argument,
+  -readability-use-anyofallof,
+  -bugprone-easily-swappable-parameters,
+  -bugprone-reserved-identifier,
+  -misc-include-cleaner,
+  -misc-use-internal-linkage,
+  -misc-no-recursion,
+  -misc-non-private-member-variables-in-classes,
+  -misc-use-anonymous-namespace,
+
+CheckOptions:
+  - key: readability-function-cognitive-complexity.IgnoreMacros
+    value: true

@@ -78,7 +78,7 @@ FORMAT_SRC := $(shell find kernel arch include mkfs test \
                 -name '*.c' -o -name '*.h' \
                 2>/dev/null)
 
-.PHONY: all clean clean_disk run build_test disasm lint format
+.PHONY: all clean clean_disk run build_test disasm lint format qemu compdb tidy tidy-file
 
 build_test:
 	@echo "Building user test: test/test_$(TEST).c"
@@ -110,6 +110,9 @@ $(OBJ_DIR)/%.o: %.S
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -c $< -o $@
 
+# exec.o must be recompiled when the test payload changes
+$(OBJ_DIR)/kernel/core/exec.o: $(GEN_DIR)/kernel/init_code.h
+
 # Generate a 32MB raw disk image and format it with mkfs
 $(MKFS_TOOL): mkfs/mkfs.c
 	@echo "Building host tool: $(MKFS_TOOL)"
@@ -128,6 +131,10 @@ $(DISK_IMG): $(MKFS_TOOL) clean_disk
 run: $(BUILD_DIR)/kernel.elf $(DISK_IMG)
 	$(QEMU) $(QEMUFLAGS)
 
+# Run QEMU without rebuilding (assumes kernel.elf and disk.img already exist)
+qemu:
+	$(QEMU) $(QEMUFLAGS)
+
 # Check if all source files comply with .clang-format (for CI)
 lint:
 	@echo "Checking code style..."
@@ -138,6 +145,33 @@ format:
 	@echo "Formatting source files..."
 	@clang-format -i $(FORMAT_SRC)
 	@echo "Formatting done."
+
+# Generate compile_commands.json for clang-tidy / clangd
+compdb:
+	@echo "Generating compile_commands.json..."
+	@{ \
+		echo '['; \
+		first=1; \
+		for src in $(KERNEL_C) $(ARCH_C); do \
+			[ "$$first" -eq 0 ] && echo ','; \
+			first=0; \
+			printf '  { "directory": "%s", "command": "%s %s -c %s", "file": "%s" }' \
+				"$(CURDIR)" "$(CC)" "$(CFLAGS)" "$$src" "$$src"; \
+		done; \
+		echo ''; \
+		echo ']'; \
+	} > compile_commands.json
+	@echo "Generated compile_commands.json"
+
+# Run clang-tidy on all kernel source files
+tidy: compdb
+	@echo "Running clang-tidy..."
+	@clang-tidy -p compile_commands.json $(KERNEL_C) $(ARCH_C) 2>&1
+	@echo "Tidy done."
+
+# Run clang-tidy on a single file:  make tidy-file FILE=kernel/fs/block_cache.c
+tidy-file: compdb
+	@clang-tidy -p compile_commands.json $(FILE)
 
 # Separate target to clean the disk image, preventing accidental data loss
 clean_disk:
