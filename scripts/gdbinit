@@ -1,0 +1,18 @@
+# GDB init for FrostVistaOS kernel debugging
+# Usage: riscv64-elf-gdb -x scripts/gdbinit build/kernel.elf
+
+set confirm off
+set pagination off
+
+# Connect to QEMU (assumes QEMU already started with -s -S)
+target remote :1234
+
+# Break at key points — uncomment as needed
+# b main
+# b panic
+# b trap_handler
+# b syscall
+# b fork
+
+# Show upcoming instruction after each step
+display/i $pc

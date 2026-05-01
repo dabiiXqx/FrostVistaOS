@@ -21,6 +21,14 @@ endif
 
 XXD = xxd
 
+# Build type: release (optimized) or debug (symbols, no optimization)
+BUILD ?= release
+ifeq ($(BUILD), debug)
+	OPT_FLAGS = -O0 -g
+else
+	OPT_FLAGS = -O2
+endif
+
 # Out-of-tree build directories
 BUILD_DIR := build
 OBJ_DIR   := $(BUILD_DIR)/obj
@@ -55,7 +63,7 @@ DUMP   = $(CROSS)-objdump
 # $(GEN_DIR) first so generated headers shadow any stale copies in include/
 INCLUDES = -I$(GEN_DIR) -Iinclude -Iarch/$(ARCH)/include
 
-CFLAGS = $(ARCH_CFLAGS) -nostdlib -nostartfiles -ffreestanding -O2 $(INCLUDES)
+CFLAGS = $(ARCH_CFLAGS) -nostdlib -nostartfiles -ffreestanding $(OPT_FLAGS) $(INCLUDES)
 CFLAGS += -DCURRENT_LOG_LEVEL=$(LOG_NUM)
 
 LDFLAGS = -T $(LINKER_SCRIPT)
@@ -78,7 +86,7 @@ FORMAT_SRC := $(shell find kernel arch include mkfs test \
                 -name '*.c' -o -name '*.h' \
                 2>/dev/null)
 
-.PHONY: all clean clean_disk run build_test disasm lint format qemu compdb tidy tidy-file
+.PHONY: all clean clean_disk run build_test disasm lint format qemu compdb tidy tidy-file debug gdb
 
 build_test:
 	@echo "Building user test: test/test_$(TEST).c"
@@ -134,6 +142,26 @@ run: $(BUILD_DIR)/kernel.elf $(DISK_IMG)
 # Run QEMU without rebuilding (assumes kernel.elf and disk.img already exist)
 qemu:
 	$(QEMU) $(QEMUFLAGS)
+
+# Debug build: clean, rebuild with -O0 -g, start QEMU paused for GDB
+#   Terminal 1: make debug TEST=init
+#   Terminal 2: make gdb
+debug:
+	@$(MAKE) clean
+	@$(MAKE) build_test TEST=$(TEST) BUILD=debug
+	@$(MAKE) $(BUILD_DIR)/kernel.elf BUILD=debug
+	@$(MAKE) $(DISK_IMG)
+	@echo ""
+	@echo "=== QEMU paused, waiting for GDB on :1234 ==="
+	@echo "Run 'make gdb' in another terminal."
+	@echo ""
+	$(QEMU) $(QEMUFLAGS) -s -S
+
+# Connect GDB to a waiting QEMU
+gdb:
+	$(CROSS)-gdb $(BUILD_DIR)/kernel.elf \
+		-ex 'set confirm off' \
+		-ex 'target remote :1234'
 
 # Check if all source files comply with .clang-format (for CI)
 lint:
