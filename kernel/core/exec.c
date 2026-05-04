@@ -46,7 +46,7 @@ static int loadseg(pagetable_t pagetable, uint64 va, uint8 *src, uint64 size)
 	return 1;
 }
 
-int exec()
+int exec(char *path)
 {
 	uint64 va_start, va_end;
 	struct Process *current_proc = get_proc();

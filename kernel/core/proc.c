@@ -140,50 +140,114 @@ void init_source()
 	exit();
 }
 
+void first_ret(){
+  test_read_img();
+
+  mount_easyfs();
+  extern void usertrapret(void);
+  usertrapret();
+}
+
 // PERF: Optimize the initialization code here and use standard naming
 // conventions.
 void init_proc(void)
 {
 	struct Process *p = alloc_process();
-	p->context->ra = (uint64) init_source;
-	// test_read_img();
-	// struct cpu *c = get_cpu();
-	// c->proc = p;
 
 	p->state = RUNNABLE;
-	// c->proc = 0;
 
 	LOG_TRACE("Init process initialized");
-	return;
 }
 
 void user_init()
 {
+	LOG_TRACE("Initializing user process");
 	struct Process *p = alloc_process();
-	if (p == 0) {
+	// TODO: Write a blog post explaining why spin locks can be used even
+	// when the process hasn't started
+	// NOTE: The use of spin locks requires
+	// processes running on the CPU.
+		if (p == 0) {
 		panic("Failed to allocate process");
 	}
 
-	struct cpu *c = get_cpu();
+	uint64 user_code_table = (uint64) kalloc();
+	if (user_code_table == 0) {
+		panic("Failed to allocate memory");
+	}
+	uint64 user_stack = (uint64) kalloc();
+	if (user_stack == 0) {
+		panic("Failed to allocate memory");
+	}
+
+  // ecall exec
+	uint8 user_code[] = {
+	    0x17, 0x05, 0x00, 0x00, 0x13, 0x05, 0x45, 0x02, 0x97, 0x05, 0x00,
+	    0x00, 0x93, 0x85, 0x35, 0x02, 0x93, 0x08, 0xb0, 0x00, 0x73, 0x00,
+	    0x00, 0x00, 0x93, 0x08, 0x20, 0x00, 0x73, 0x00, 0x00, 0x00, 0xef,
+	    0xf0, 0x9f, 0xff, 0x2f, 0x69, 0x6e, 0x69, 0x74, 0x00, 0x00, 0x24,
+	    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+	memcpy((uint64 *) user_code_table, user_code, sizeof(user_code));
+
+	kvmmap(p->pagetable, 0x0, (uint64) VA2PA(user_code_table), PGSIZE,
+	       PTE_U | PTE_R | PTE_W | PTE_X | PTE_V);
+	uint64 user_stack_va = 0x40000;
+	kvmmap(p->pagetable, (uint64) user_stack_va, (uint64) VA2PA(user_stack),
+	       PGSIZE, PTE_U | PTE_R | PTE_W | PTE_V);
+
+	uint64 user_stack_top = (uint64) user_stack_va + PGSIZE;
+	p->trapframe->sp = user_stack_top;
+	p->trapframe->epc = 0x0;
+  p->context->ra = (uint64) first_ret;
+
+  struct cpu *c = get_cpu();
 	c->proc = p;
 
 	int fd0 = open("/dev/tty", O_RDONLY); // stdin
 	int fd1 = open("/dev/tty", O_WRONLY); // stdout
 	int fd2 = dup(fd1);		      // stderr
 
+	LOG_TRACE("fd0: %d, fd1: %d, fd2: %d", fd0, fd1, fd2);
+
 	if (fd0 < 0 || fd1 < 0 || fd2 < 0) {
 		panic("Failed to open files");
 	}
 
-	if (exec() == 0) {
-		panic("Failed to exec");
-	}
-
-	p->state = RUNNABLE;
+	// NOTE: Clear the CPU processes in the settings
 	c->proc = 0;
 
+	p->state = RUNNABLE;
 	LOG_TRACE("User process initialized");
 }
+
+// void user_init()
+// {
+// 	struct Process *p = alloc_process();
+// 	if (p == 0) {
+// 		panic("Failed to allocate process");
+// 	}
+//
+// 	struct cpu *c = get_cpu();
+// 	c->proc = p;
+//
+// 	int fd0 = open("/dev/tty", O_RDONLY); // stdin
+// 	int fd1 = open("/dev/tty", O_WRONLY); // stdout
+// 	int fd2 = dup(fd1);		      // stderr
+//
+// 	if (fd0 < 0 || fd1 < 0 || fd2 < 0) {
+// 		panic("Failed to open files");
+// 	}
+//
+// 	if (exec("/init") == 0) {
+// 		panic("Failed to exec");
+// 	}
+//
+// 	p->state = RUNNABLE;
+// 	c->proc = 0;
+//
+// 	LOG_TRACE("User process initialized");
+// }
 
 void scheduler(void)
 {

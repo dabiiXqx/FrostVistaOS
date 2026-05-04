@@ -82,6 +82,11 @@ typedef struct vfs_inode {
 	struct vfs_inode *prev;
 } vfs_inode_t;
 
+struct vfs_dirent {
+  char name[16]; 
+  uint32 ino;
+};
+
 typedef struct superblock_ops {
 	struct vfs_inode *(*alloc_inode)(struct super_block *sb);
 	void (*destroy_inode)(struct vfs_inode *inode);
@@ -96,7 +101,7 @@ typedef struct fs_ops {
  * super_block: Super block
  * */
 typedef struct super_block {
-	uint64 magic;	   // magic number: suppose to be 0x0B8EE2E0
+	uint32 magic;	   // magic number: suppose to be 0x0B8EE2E0
 	uint32 dev;	   // device id
 	uint32 block_size; // block size
 	struct superblock_ops *ops;

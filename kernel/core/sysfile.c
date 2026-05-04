@@ -199,3 +199,11 @@ uint64 sys_open()
 	LOG_TRACE("sys_open: %s -> %d", path, fd);
 	return (uint64) fd;
 }
+
+uint64 sys_exec()
+{
+	char path[128];
+  argstr(0, path, 128);
+	exec(path);
+	return 0;
+}

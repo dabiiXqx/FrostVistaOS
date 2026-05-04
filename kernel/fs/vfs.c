@@ -1,41 +1,10 @@
 #include "driver/hal_console.h"
 #include "kernel/bcache.h"
 #include "kernel/defs.h"
-#include "kernel/easyfs.h"
 #include "kernel/fs.h"
-#include "kernel/icache.h"
 #include "kernel/log.h"
 
 vfs_inode_t *vfs_root;
-
-/**
- * skipelem: Return a pointer to the position following the next ‘/’ and copy
- * the current segment into `name`
- *
- * Return: a pointer to the position following the next ‘/’,
- * Return 0 if the path is empty
- * */
-char *skipelem(char *path, char *name)
-{
-	while (*path == '/')
-		path++;
-	if (*path == '\0')
-		return 0;
-
-	char *s = path;
-	while (*path != '/' && *path != '\0')
-		path++;
-
-	int len = path - s;
-	if (len >= 128)
-		len = 127;
-	memmove(name, s, len);
-	name[len] = '\0';
-
-	while (*path == '/')
-		path++;
-	return path;
-}
 
 /**
  * vfs_lookup: Look up a path in a VFS node
@@ -101,7 +70,7 @@ vfs_inode_t *dirlookup(struct vfs_inode *ip, char *name)
 		if (de.inode_num == 0) {
 			continue;
 		}
-		if (strcmp(name, de.name)) {
+		if (!strcmp(name, de.name)) {
 			return get_inode(de.inode_num);
 		}
 	}
@@ -110,6 +79,7 @@ vfs_inode_t *dirlookup(struct vfs_inode *ip, char *name)
 
 vfs_inode_ops_t root_ops = {.lookup = dirlookup};
 vfs_inode_ops_t default_mock_ops = {.lookup = mock_finddir};
+struct super_block superblock = {0};
 
 // mount easyfs
 struct super_block *mount_easyfs(void)
@@ -122,9 +92,8 @@ struct super_block *mount_easyfs(void)
 		LOG_ERROR("mount_easyfs: mount failed");
 		panic("mount_easyfs: mount failed");
 	}
-	struct super_block *sb = {0};
-	sb->magic = dsb->magic;
-	return sb;
+	superblock.magic = dsb->magic;
+	return &superblock;
 };
 
 fs_ops_t fss_ops = {.mount_fs = &mount_easyfs};

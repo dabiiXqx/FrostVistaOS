@@ -40,6 +40,7 @@ void __attribute__((noreturn)) high_mode_start()
 	vfs_init();	    // Mock VFS
 	virtio_disk_init(); // virtio disk
 	binit();	    // buffer cache
+	icache_init();	    // inode cache
 	test_vfs();
 	// TODO: Implement more comprehensive pre-activation initialization in
 	// user mode
@@ -75,7 +76,7 @@ void s_mode_start()
 
 	uart_base_ptr = (volatile unsigned char *) PA2VA(UART0_BASE);
 
-	// The virtual address of `kernel_table` will be used later
+	// NOTE: The virtual address of `kernel_table` will be used later
 	// However, it is important to note that writing to the page table still
 	// requires a real physical address, which means it must be converted to
 	// a low address.

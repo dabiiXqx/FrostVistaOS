@@ -11,5 +11,6 @@
 #define SYS_close 8
 #define SYS_dup 9
 #define SYS_fstat 10
+#define SYS_exec 11
 
 #endif

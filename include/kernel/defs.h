@@ -8,9 +8,7 @@ struct spinlock;
 int cpuid();
 struct cpu *get_cpu();
 struct Process *get_proc();
-void push_off();
 void init_proc();
-// void kernel_proc_init();
 
 // spinlock.c
 void initlock(struct spinlock *lk, char *name);
@@ -56,7 +54,7 @@ int argstr(int n, char *buf, int max);
 void syscall();
 
 // exec.c
-int exec();
+int exec(char *path);
 
 // proc.c
 struct file;
@@ -79,13 +77,20 @@ int dup(int fd);
 int filestat(int fd, uint64 user_st_addr);
 
 // vfs.c
-struct vfs_inode;
-
 void vfs_init();
 struct vfs_inode *dirlookup(struct vfs_inode *ip, char *name);
 struct vfs_inode *vfs_lookup(struct vfs_inode *node, char *path);
 char *skipelem(char *path, char *name);
 void test_vfs();
+struct super_block *mount_easyfs();
+
+// fs.c
+struct vfs_inode *namei(char *path);
+
+// icache.c
+struct vfs_inode *get_inode(uint32 ino);
+void icache_init(void);
+void put_inode(struct vfs_inode *t);
 
 // virtio_disk.c
 struct buf;

@@ -25,6 +25,7 @@ void icache_init(void)
 		icache.head.next->prev = inc;
 		icache.head.next = inc;
 	}
+	LOG_TRACE("icache_init done");
 }
 
 /**

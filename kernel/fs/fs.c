@@ -3,11 +3,11 @@
 #include "kernel/bcache.h"
 #include "kernel/defs.h"
 #include "kernel/easyfs.h"
-#include "kernel/icache.h"
 #include "kernel/log.h"
 #include "kernel/types.h"
 
 #define NDIRECT 12
+#define DIRSIZ 14
 
 /**
  * balloc - Allocate a free data block
@@ -175,13 +175,49 @@ uint readi(struct vfs_inode *ip, int user_dst, uint64 dst, uint32 off,
 	return tot;
 }
 
+/**
+ * skipelem: Return a pointer to the position following the next ‘/’ and copy
+ * the current segment into `name`
+ *
+ * Return: a pointer to the position following the next ‘/’,
+ * Return 0 if the path is empty
+ * */
+char *skipelem(char *path, char *name)
+{
+	while (*path == '/')
+		path++;
+	if (*path == '\0')
+		return 0;
+
+	char *s = path;
+	while (*path != '/' && *path != '\0')
+		path++;
+
+	int len = path - s;
+	if (len >= 128)
+		len = 127;
+	memmove(name, s, len);
+	name[len] = '\0';
+
+	while (*path == '/')
+		path++;
+	return path;
+}
+
+/**
+ * namex - Look up and return the inode for a path name
+ *
+ * Context: Based on the `nameiparent` parameter, check whether the file returns
+ * the inode of its parent directory
+ *
+ * */
 struct vfs_inode *namex(char *path, int nameiparent, char *name)
 {
 	struct vfs_inode *ip, *next;
 
-	if (*path == '/')
+	if (*path == '/') {
 		ip = get_inode(0);
-	else {
+	} else {
 		// TODO: Search starting from the current working directory
 		// ip = idup(proc->cwd);
 		ip = get_inode(0);
@@ -190,7 +226,7 @@ struct vfs_inode *namex(char *path, int nameiparent, char *name)
 	while ((path = skipelem(path, name)) != 0) {
 		if (ip->type != VFS_DIR) {
 			put_inode(ip);
-			LOG_WARN("namex: Not a directory");
+			LOG_WARN("namex: %s Not a directory", name);
 			return 0;
 		}
 
@@ -213,4 +249,15 @@ struct vfs_inode *namex(char *path, int nameiparent, char *name)
 	}
 
 	return ip;
+}
+
+struct vfs_inode *namei(char *path)
+{
+	char name[DIRSIZ];
+	return namex(path, 0, name);
+}
+
+struct vfs_inode *nameiparent(char *path, char *name)
+{
+	return namex(path, 1, name);
 }

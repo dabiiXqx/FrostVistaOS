@@ -15,8 +15,4 @@ struct inode_cache {
 
 extern struct inode_cache icache;
 
-struct vfs_inode *get_inode(uint32 ino);
-void icache_init(void);
-void put_inode(struct vfs_inode *t);
-
 #endif
