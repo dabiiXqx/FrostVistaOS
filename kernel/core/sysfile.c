@@ -8,8 +8,8 @@
 #define NFILE 128
 
 extern struct spinlock ftable_lock;
-extern file_t ftable[NFILE];
-extern vfs_inode_t *vfs_root;
+extern struct file ftable[NFILE];
+extern struct vfs_inode *vfs_root;
 
 uint64 sys_write()
 {
@@ -35,7 +35,7 @@ uint64 sys_write()
 	int reset = total;
 	int output = 0;
 
-	file_t *file = current_proc->ofile[fd];
+	struct file *file = current_proc->ofile[fd];
 	if (file == 0) {
 		LOG_ERROR("sys_write: file %d not open", fd);
 		return -1;
@@ -92,7 +92,7 @@ uint64 sys_read()
 	int total_read = 0;
 
 	struct Process *current_proc = get_proc();
-	file_t *file = current_proc->ofile[fd];
+	struct file *file = current_proc->ofile[fd];
 
 	if (file == 0) {
 		LOG_ERROR("sys_read: file %d not open", fd);
@@ -142,7 +142,7 @@ uint64 sys_close()
 	}
 
 	acquire(&proc->lock);
-	file_t *file = proc->ofile[fd];
+	struct file *file = proc->ofile[fd];
 	proc->ofile[fd] = 0;
 	release(&proc->lock);
 

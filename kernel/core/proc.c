@@ -10,7 +10,7 @@
 #include "kernel/spinlock.h"
 #define NFILE 128
 
-file_t ftable[NFILE];
+struct file ftable[NFILE];
 struct spinlock ftable_lock = {.name = "ftable_lock", .locked = 0, .cpu = 0};
 
 struct cpu cpus[NCPU];
@@ -194,8 +194,8 @@ void user_init()
 	kvmmap(p->pagetable, 0x0, (uint64) VA2PA(user_code_table), PGSIZE,
 	       PTE_U | PTE_R | PTE_W | PTE_X | PTE_V);
 	uint64 user_stack_va = 0x40000;
-	kvmmap(p->pagetable, user_stack_va, (uint64) VA2PA(user_stack),
-	       PGSIZE, PTE_U | PTE_R | PTE_W | PTE_V);
+	kvmmap(p->pagetable, user_stack_va, (uint64) VA2PA(user_stack), PGSIZE,
+	       PTE_U | PTE_R | PTE_W | PTE_V);
 
 	uint64 user_stack_top = user_stack_va + PGSIZE;
 	p->trapframe->sp = user_stack_top;
@@ -348,7 +348,7 @@ void yield(void)
 /**
  * alloc_fd - Allocate a free file descriptor
  * */
-int alloc_fd(struct Process *p, file_t *f)
+int alloc_fd(struct Process *p, struct file *f)
 {
 	acquire(&p->lock);
 	for (int i = 0; i < 16; i++) {

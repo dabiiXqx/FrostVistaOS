@@ -9,8 +9,8 @@
 struct inode_cache {
 	struct spinlock lock;
 
-	vfs_inode_t head; // double linked list
-	vfs_inode_t inodes[NINODES];
+	struct vfs_inode head; // double linked list
+	struct vfs_inode inodes[NINODES];
 };
 
 extern struct inode_cache icache;

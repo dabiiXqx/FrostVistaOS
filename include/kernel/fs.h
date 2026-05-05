@@ -38,7 +38,7 @@ struct disk_dir_entry {
 /**
  * vfs_inode_ops: Operations for a VFS node
  * */
-typedef struct vfs_inode_ops {
+struct vfs_inode_ops {
 	struct vfs_inode *(*lookup)(struct vfs_inode *dir, char *name);
 	int (*create)(struct vfs_inode *dir, char *name, int mode);
 	int (*link)(struct vfs_inode *old_node, struct vfs_inode *dir,
@@ -49,10 +49,9 @@ typedef struct vfs_inode_ops {
 	int (*rename)(struct vfs_inode *old_dir, char *old_name,
 		      struct vfs_inode *new_dir, char *new_name);
 	int (*stat)(struct vfs_inode *node, struct stat *st);
+};
 
-} vfs_inode_ops_t;
-
-typedef struct vfs_file_ops {
+struct vfs_file_ops {
 	int (*read)(struct file *f, uint8 *buffer, uint32 size);
 	int (*write)(struct file *f, uint8 *buffer, uint32 size);
 	int (*readdir)(
@@ -61,17 +60,17 @@ typedef struct vfs_file_ops {
 					// it is placed on the `file` side
 	int (*lseek)(struct file *f, int64 offset, int whence);
 	int (*close)(struct file *f);
-} vfs_file_ops_t;
+};
 
-typedef struct vfs_inode {
+struct vfs_inode {
 	char name[16];
 	uint32 ino;    // Inode number
 	uint32 count;  // Reference count
 	uint32 nlinks; // Number of hard links
 	struct super_block *sb;
 	struct spinlock lock;
-	vfs_inode_ops_t *ops; // pointer to the operations of the node
-	vfs_file_ops_t *default_f_ops;
+	struct vfs_inode_ops *ops; // pointer to the operations of the node
+	struct vfs_file_ops *default_f_ops;
 
 	short type;	    // type of the node
 	uint64 size;	    // size of the node
@@ -80,34 +79,34 @@ typedef struct vfs_inode {
 	// double linked list that supports LRU inode cache
 	struct vfs_inode *next;
 	struct vfs_inode *prev;
-} vfs_inode_t;
+};
 
 struct vfs_dirent {
 	char name[16];
 	uint32 ino;
 };
 
-typedef struct superblock_ops {
+struct superblock_ops {
 	struct vfs_inode *(*alloc_inode)(struct super_block *sb);
 	void (*destroy_inode)(struct vfs_inode *inode);
 	void (*write_super)(struct super_block *sb);
-} superblock_ops_t;
+};
 
-typedef struct fs_ops {
+struct fs_ops {
 	struct super_block *(*mount_fs)(void);
-} fs_ops_t;
+};
 
 /**
  * super_block: Super block
  * */
-typedef struct super_block {
+struct super_block {
 	uint32 magic;	   // magic number: suppose to be 0x0B8EE2E0
 	uint32 dev;	   // device id
 	uint32 block_size; // block size
 	struct superblock_ops *ops;
 	struct vfs_inode *root; // root of the filesystem
 	void *private_data;	// Pointer to specific data
-} super_block_t;
+};
 
 uint readi(struct vfs_inode *ip, int user_dst, uint64 dst, uint32 off,
 	   uint32 size);

@@ -3,13 +3,13 @@
 #include "kernel/fcntl.h"
 #define NFILE 128
 
-extern vfs_inode_t *vfs_root;
+extern struct vfs_inode *vfs_root;
 extern struct spinlock ftable_lock;
-extern file_t ftable[NFILE];
+extern struct file ftable[NFILE];
 
 int open(const char *path, int flags)
 {
-	vfs_inode_t *node = vfs_lookup(vfs_root, (char *) path);
+	struct vfs_inode *node = vfs_lookup(vfs_root, (char *) path);
 	if (node == 0)
 		return -1;
 
@@ -18,7 +18,7 @@ int open(const char *path, int flags)
 	if (file_id == -1)
 		return -1;
 
-	file_t *f = &ftable[file_id];
+	struct file *f = &ftable[file_id];
 
 	f->node = node;
 	f->offset = 0;
@@ -72,7 +72,7 @@ int filestat(int fd, uint64 user_st_addr)
 	if (fd < 0 || fd >= 16 || p->ofile[fd] == 0)
 		return -1;
 
-	file_t *f = p->ofile[fd];
+	struct file *f = p->ofile[fd];
 	struct stat st;
 
 	if (f->node->ops->stat) {

@@ -4,20 +4,20 @@
 #include "kernel/fs.h"
 #include "kernel/log.h"
 
-vfs_inode_t *vfs_root;
+struct vfs_inode *vfs_root;
 
 /**
  * vfs_lookup: Look up a path in a VFS node
  * */
-vfs_inode_t *vfs_lookup(vfs_inode_t *node, char *path)
+struct vfs_inode *vfs_lookup(struct vfs_inode *node, char *path)
 {
 	char name[128];
-	vfs_inode_t *current = node;
+	struct vfs_inode *current = node;
 	while ((path = skipelem(path, name)) != 0) {
 		if (!(current->type & VFS_DIR))
 			return 0;
 
-		vfs_inode_t *next = current->ops->lookup(current, name);
+		struct vfs_inode *next = current->ops->lookup(current, name);
 		if (next == 0)
 			return 0;
 		current = next;
@@ -25,11 +25,11 @@ vfs_inode_t *vfs_lookup(vfs_inode_t *node, char *path)
 	return current;
 }
 
-vfs_file_ops_t uart_ops;
+struct vfs_file_ops uart_ops;
 
-vfs_inode_t *create_vfs_inode(char *name, uint32 flags)
+struct vfs_inode *create_vfs_inode(char *name, uint32 flags)
 {
-	vfs_inode_t *node = kalloc();
+	struct vfs_inode *node = kalloc();
 	if (!node)
 		return 0;
 
@@ -42,11 +42,11 @@ vfs_inode_t *create_vfs_inode(char *name, uint32 flags)
 	return node;
 }
 
-vfs_inode_t *dev_dir;
-vfs_inode_t *tty_file;
+struct vfs_inode *dev_dir;
+struct vfs_inode *tty_file;
 
 // For testing purposes
-vfs_inode_t *mock_finddir(vfs_inode_t *node, char *name)
+struct vfs_inode *mock_finddir(struct vfs_inode *node, char *name)
 {
 	if (node == vfs_root && strcmp(name, "dev") == 0) {
 		return dev_dir;
@@ -57,7 +57,7 @@ vfs_inode_t *mock_finddir(vfs_inode_t *node, char *name)
 	return 0; // Not found
 }
 
-vfs_inode_t *dirlookup(struct vfs_inode *ip, char *name)
+struct vfs_inode *dirlookup(struct vfs_inode *ip, char *name)
 {
 	if (ip->type != VFS_DIR)
 		return 0;
@@ -77,8 +77,8 @@ vfs_inode_t *dirlookup(struct vfs_inode *ip, char *name)
 	return 0;
 }
 
-vfs_inode_ops_t root_ops = {.lookup = dirlookup};
-vfs_inode_ops_t default_mock_ops = {.lookup = mock_finddir};
+struct vfs_inode_ops root_ops = {.lookup = dirlookup};
+struct vfs_inode_ops default_mock_ops = {.lookup = mock_finddir};
 struct super_block superblock = {0};
 
 // mount easyfs
@@ -96,8 +96,8 @@ struct super_block *mount_easyfs(void)
 	return &superblock;
 };
 
-fs_ops_t fss_ops = {.mount_fs = &mount_easyfs};
-super_block_t superblk;
+struct fs_ops fss_ops = {.mount_fs = &mount_easyfs};
+struct super_block superblk;
 
 void vfs_init()
 {
@@ -117,7 +117,7 @@ void vfs_init()
 void test_vfs()
 {
 	LOG_INFO("Test vfs");
-	vfs_inode_t *node = vfs_lookup(vfs_root, "/dev/tty");
+	struct vfs_inode *node = vfs_lookup(vfs_root, "/dev/tty");
 	if (node) {
 		LOG_INFO("Success find node: %s", node->name);
 	} else {
@@ -155,5 +155,5 @@ int uart_vfs_read(struct file *, uint8 *buffer, uint32 size)
 	return count;
 }
 
-vfs_file_ops_t uart_ops = {
+struct vfs_file_ops uart_ops = {
     .read = uart_vfs_read, .write = uart_vfs_write, .readdir = 0, .close = 0};

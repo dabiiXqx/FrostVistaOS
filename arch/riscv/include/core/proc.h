@@ -74,26 +74,26 @@ struct cpu {
 
 enum file_type { FILE_NONE, FILE_VFS_NODE };
 
-typedef struct file {
+struct file {
 	enum file_type type;
 	int ref_count; // Reference count (used by the `dup` system call)
 	uint64 offset;
 	uint8 readable;
 	uint8 writable;
 
-	vfs_file_ops_t *f_ops;
-	vfs_inode_t *node; // Points to the corresponding VFS node
-} file_t;
+	struct vfs_file_ops *f_ops;
+	struct vfs_inode *node; // Points to the corresponding VFS node
+};
 
 enum proc_state { UNUSED, USED, RUNNABLE, RUNNING, SLEEPING, ZOMBIE };
 
 struct Process {
 	enum proc_state state;
-	struct spinlock lock; // Lock to protect the process
-	void *chan;	      // wakeup channel
-	int pid;	      // Process ID
-	char name[16];	      // Process name
-	file_t *ofile[16];    // Open files
+	struct spinlock lock;	// Lock to protect the process
+	void *chan;		// wakeup channel
+	int pid;		// Process ID
+	char name[16];		// Process name
+	struct file *ofile[16]; // Open files
 
 	uint64 kstack;		     // Kernel stack pointer
 	struct Process *parent;	     // Parent process
