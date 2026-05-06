@@ -22,7 +22,8 @@ int flags2perm(int flags)
 /**
  * loadseg - Load a segment into pagetable
  * */
-static int loadseg(pagetable_t pagetable, uint64 va, struct vfs_inode *inode, uint64 off ,uint64 size)
+static int loadseg(pagetable_t pagetable, uint64 va, struct vfs_inode *inode,
+		   uint64 off, uint64 size)
 {
 	uint64 i = 0;
 	while (i < size) {
@@ -31,8 +32,8 @@ static int loadseg(pagetable_t pagetable, uint64 va, struct vfs_inode *inode, ui
 
 		uint64 pa = walk_addr(pagetable, va_page);
 		if (pa == 0) {
-      LOG_WARN("loadseg: walk failed");
-      return -1;
+			LOG_WARN("loadseg: walk failed");
+			return -1;
 		}
 
 		uint64 n = PGSIZE - offset;
@@ -40,10 +41,10 @@ static int loadseg(pagetable_t pagetable, uint64 va, struct vfs_inode *inode, ui
 			n = size - i;
 		}
 
-    if(readi(inode, 0, PA2VA(pa), off + i, n) != n) {
-      LOG_WARN("loadseg: readi failed");
-      return -1;
-    }
+		if (readi(inode, 0, PA2VA(pa), off + i, n) != n) {
+			LOG_WARN("loadseg: readi failed");
+			return -1;
+		}
 		i += n;
 	}
 
@@ -56,20 +57,21 @@ int exec(char *path)
 	uint64 va_end;
 	struct Process *current_proc = get_proc();
 
-  // FIXME: Using `kalloc` will cause a memory leak
+	// FIXME: Using `kalloc` will cause a memory leak
 	struct elfhdr *eh = kalloc();
 	struct vfs_inode *node = namei(path);
-  if (node == 0) {
-    LOG_WARN("exec: namei failed");
-    return -1;
-  }
+	if (node == 0) {
+		LOG_WARN("exec: namei failed");
+		return -1;
+	}
 	LOG_INFO("node: %s", node->name);
 
-  ilock(node);
-  if(readi(node, 0, (uint64) eh, 0, sizeof(struct elfhdr)) != sizeof(struct elfhdr)) { 
-    LOG_WARN("exec: readi failed"); 
-    return -1;
-  }
+	ilock(node);
+	if (readi(node, 0, (uint64) eh, 0, sizeof(struct elfhdr)) !=
+	    sizeof(struct elfhdr)) {
+		LOG_WARN("exec: readi failed");
+		return -1;
+	}
 
 	if (eh->magic != ELF_MAGIC) {
 		LOG_WARN("exec: magic number is not ELF_MAGIC");
@@ -82,12 +84,14 @@ int exec(char *path)
 	for (i = 0, off = eh->phoff; i < eh->phnum;
 	     i++, off += sizeof(struct proghdr)) {
 
-    // FIXME: Using `kalloc` will cause a memory leak
-		struct proghdr *ph = kalloc(); // = (struct proghdr *) (init_elf + off);
-    if(readi(node, 0, (uint64) ph, off, sizeof(struct proghdr)) != sizeof(struct proghdr)) {
-      LOG_WARN("exec: readi proghdr failed");
-      return -1;
-    }
+		// FIXME: Using `kalloc` will cause a memory leak
+		struct proghdr *ph =
+		    kalloc(); // = (struct proghdr *) (init_elf + off);
+		if (readi(node, 0, (uint64) ph, off, sizeof(struct proghdr)) !=
+		    sizeof(struct proghdr)) {
+			LOG_WARN("exec: readi proghdr failed");
+			return -1;
+		}
 		if (ph->type != ELF_PROG_LOAD)
 			continue;
 
@@ -101,9 +105,9 @@ int exec(char *path)
 			return 0;
 		}
 
-    loadseg(user_pagetable, va_start, node, ph->off, ph->filesz);
+		loadseg(user_pagetable, va_start, node, ph->off, ph->filesz);
 	}
-  iunlock(node);
+	iunlock(node);
 
 	uint64 sz = PGROUNDUP(va_end);
 

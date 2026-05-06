@@ -49,7 +49,8 @@ int main(int argc, char *argv[])
 	// Block 2: Inode Bitmap
 	// Block 3: Data Bitmap
 	// Block 4 to 10: Inode Area (e.g., 7 blocks * 64 inodes/block = 448
-	// inodes) Block 11 to 9999: Data Area
+	// inodes)
+	// Block 11 to 9999: Data Area
 	super_block.ibitmap_area_start = 2;
 	super_block.dbitmap_area_start = 3;
 	super_block.inode_area_start = 4;

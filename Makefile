@@ -104,11 +104,17 @@ all:
 	$(MAKE) $(BUILD_DIR)/kernel.elf
 	$(MAKE) run
 
-disasm: $(BUILD_DIR)/kernel.elf
-	$(DUMP) -dS $(BUILD_DIR)/kernel.elf > $(BUILD_DIR)/disasm.txt
-
 $(BUILD_DIR)/kernel.elf: $(OBJS) $(LINKER_SCRIPT)
 	$(CC) $(CFLAGS) $(OBJS) $(LDFLAGS) -o $@
+
+# Make 'run' depend on the disk image so it is created before QEMU starts
+run: $(BUILD_DIR)/kernel.elf $(DISK_IMG)
+	$(QEMU) $(QEMUFLAGS)
+
+
+disasm: $(BUILD_DIR)/kernel.elf
+	$(DUMP) -D -S -s $(BUILD_DIR)/kernel.elf > $(BUILD_DIR)/disasm.txt
+
 
 $(OBJ_DIR)/%.o: %.c
 	@mkdir -p $(dir $@)
@@ -135,9 +141,6 @@ $(DISK_IMG): $(MKFS_TOOL) clean_disk
 	# Run the formatting tool on the freshly zeroed disk
 	./$(MKFS_TOOL) $@ $(TEST_DIR)/init_bin
 
-# Make 'run' depend on the disk image so it is created before QEMU starts
-run: $(BUILD_DIR)/kernel.elf $(DISK_IMG)
-	$(QEMU) $(QEMUFLAGS)
 
 # Run QEMU without rebuilding (assumes kernel.elf and disk.img already exist)
 qemu:
@@ -147,7 +150,6 @@ qemu:
 #   Terminal 1: make debug TEST=init
 #   Terminal 2: make gdb
 debug:
-	@$(MAKE) clean
 	@$(MAKE) build_test TEST=$(TEST) BUILD=debug
 	@$(MAKE) $(BUILD_DIR)/kernel.elf BUILD=debug
 	@$(MAKE) $(DISK_IMG)

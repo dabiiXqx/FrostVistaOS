@@ -91,7 +91,6 @@ uint readi(struct vfs_inode *ip, int user_dst, uint64 dst, uint32 off,
 void ilock(struct vfs_inode *ip);
 void iunlock(struct vfs_inode *ip);
 
-
 // icache.c
 struct vfs_inode *get_inode(uint32 ino);
 void icache_init(void);

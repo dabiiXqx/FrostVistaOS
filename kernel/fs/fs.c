@@ -196,7 +196,7 @@ void ilock(struct vfs_inode *ip)
 	buf = bread(0, blkno + 4);
 
 	dip = (struct disk_inode *) buf->data;
-  dip = &dip[ip->ino % 0xff];
+	dip = &dip[ip->ino % 0xff];
 
 	ip->type = dip->type;
 	ip->count = dip->nlinks;
