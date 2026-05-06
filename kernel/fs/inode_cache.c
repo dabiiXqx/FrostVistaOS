@@ -21,7 +21,7 @@ void icache_init(void)
 		inc->next = icache.head.next;
 		inc->prev = &icache.head;
 		inc->count = 0;
-		initlock(&inc->lock, "inode lock");
+		initsleeplock(&inc->lock, "inode lock");
 		icache.head.next->prev = inc;
 		icache.head.next = inc;
 	}
@@ -43,10 +43,13 @@ struct vfs_inode *get_inode(uint32 ino)
 		if (t->ino == ino && t->count > 0) {
 			t->count++;
 			release(&icache.lock);
+
+			LOG_TRACE("get_inode: hit ino %d", ino);
 			return t;
 		}
 	}
 
+	LOG_TRACE("get_inode: miss ino %d", ino);
 	// LRU need start from the tail
 	for (t = icache.head.prev; t != &icache.head; t = t->prev) {
 		if (t->count == 0) {

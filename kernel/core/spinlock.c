@@ -7,7 +7,7 @@
 // Initialize the lock
 void initlock(struct spinlock *lk, char *name)
 {
-	LOG_TRACE("Initialize lock %s", name);
+	// LOG_TRACE("Initialize lock %s", name);
 	lk->name = name;
 	lk->locked = 0;
 	lk->cpu = 0;
@@ -68,6 +68,9 @@ void push_off(void)
 void pop_off(void)
 {
 	if (intr_get()) {
+		// By default, this is paired with `push_off`, which disables
+		// interrupts; therefore, interrupts should still be disabled
+		// here.
 		panic("pop_off: interrupt enabled\n");
 	}
 	struct cpu *c = get_cpu();
@@ -82,9 +85,11 @@ void pop_off(void)
 
 void sleep(void *chan, struct spinlock *lk)
 {
-
 	struct Process *p = get_proc();
 
+	// If the lock belongs to the current process, modifying the current
+	// process's data no longer requires a lock request. Otherwise, acquire
+	// the lock on the current process and release the lock passed in
 	if (lk != &p->lock) {
 		acquire(&p->lock);
 		release(lk);

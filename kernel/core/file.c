@@ -1,6 +1,7 @@
 #include "asm/defs.h"
 #include "core/proc.h"
 #include "kernel/fcntl.h"
+#include "kernel/log.h"
 #define NFILE 128
 
 extern struct vfs_inode *vfs_root;

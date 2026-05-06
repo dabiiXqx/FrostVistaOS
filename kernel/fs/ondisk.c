@@ -21,11 +21,10 @@ void test_read_img()
 	if (*magic_ptr == 0x0B8EE2E0) {
 		LOG_DEBUG("[FS] SUCCESS! Magic number 0x0B8EE2E0 matched!");
 	} else {
-		LOG_DEBUG("[FS] MOUNT FAILED! Expected 0x0B8EE2E0 but got 0x%x",
+		LOG_ERROR("[FS] MOUNT FAILED! Expected 0x0B8EE2E0 but got 0x%x",
 			  *magic_ptr);
 	}
 
 	// CRUCIAL: Always release the buffer!
 	brelse(b);
-	LOG_DEBUG("[FS] FrostVistaOS has successfully mounted the root disk!");
 }

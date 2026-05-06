@@ -7,6 +7,7 @@
 struct easyfs_inode_info {
 	uint32 dev;
 	uint32 type;
+	uint32 vaild;
 	uint32 blocks[12];
 };
 

@@ -1,3 +1,4 @@
+#include "kernel/fs.h"
 #include "asm/defs.h"
 #include "core/proc.h"
 #include "kernel/bcache.h"
@@ -32,7 +33,7 @@ uint32 balloc()
 		int temp = 1;
 		// Find unused bits
 		for (int shift = 0; shift < 8; shift++) {
-			temp = temp << shift;
+			temp = 1 << shift;
 			if (!(buf->data[i] & temp)) {
 				// Set this bit to 1
 				buf->data[i] |= temp;
@@ -177,6 +178,54 @@ uint readi(struct vfs_inode *ip, int user_dst, uint64 dst, uint32 off,
 	return tot;
 }
 
+void ilock(struct vfs_inode *ip)
+{
+	struct buf *buf;
+	struct disk_inode *dip;
+
+	if (ip == 0 || ip->count < 1) {
+		panic("ilock null inode");
+	}
+
+	acquiresleep(&ip->lock);
+	ip->private_data = (struct easyfs_inode_info *) kalloc();
+	struct easyfs_inode_info *ei =
+	    (struct easyfs_inode_info *) ip->private_data;
+
+	uint64 blkno = (ip->ino * 64) / 0x1000;
+	buf = bread(0, blkno + 4);
+
+	dip = (struct disk_inode *) buf->data;
+  dip = &dip[ip->ino % 0xff];
+
+	ip->type = dip->type;
+	ip->count = dip->nlinks;
+	ip->size = dip->size;
+	memmove(ei->blocks, dip->blocks, sizeof(dip->blocks));
+
+	brelse(buf);
+	ei->vaild = 1;
+	if (ip->type == 0) {
+		panic("ilock: no type");
+	}
+}
+
+// Unlock the given inode.
+void iunlock(struct vfs_inode *ip)
+{
+	if (ip == 0 || !holdingsleep(&ip->lock) || ip->count < 1)
+		panic("iunlock");
+
+	releasesleep(&ip->lock);
+}
+
+// Common idiom: unlock, then put.
+void iunlockput(struct vfs_inode *ip)
+{
+	iunlock(ip);
+	put_inode(ip);
+}
+
 /**
  * skipelem: Return a pointer to the position following the next ‘/’ and copy
  * the current segment into `name`
@@ -227,8 +276,9 @@ struct vfs_inode *namex(char *path, int nameiparent, char *name)
 	}
 
 	while ((path = skipelem(path, name)) != 0) {
+		ilock(ip);
 		if (ip->type != VFS_DIR) {
-			put_inode(ip);
+			iunlockput(ip);
 			LOG_WARN("namex: %s Not a directory", name);
 			return 0;
 		}
@@ -238,12 +288,12 @@ struct vfs_inode *namex(char *path, int nameiparent, char *name)
 		}
 
 		if ((next = dirlookup(ip, name)) == 0) {
-			put_inode(ip);
+			iunlockput(ip);
 			return 0;
 		}
 
-		put_inode(ip);
-		ip = next;
+		iunlockput(ip);
+		*ip = *next;
 	}
 
 	if (nameiparent) {

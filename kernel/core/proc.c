@@ -18,7 +18,6 @@ struct Process proc[NPROC];
 extern pagetable_t kernel_table;
 
 struct spinlock pid_lock = {.name = "pid_lock", .locked = 0, .cpu = 0};
-
 int pid = 0;
 
 int file_alloc()

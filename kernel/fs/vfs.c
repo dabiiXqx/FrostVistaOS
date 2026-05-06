@@ -62,7 +62,7 @@ struct vfs_inode *dirlookup(struct vfs_inode *ip, char *name)
 	if (ip->type != VFS_DIR)
 		return 0;
 
-	struct disk_dir_entry de;
+	struct disk_dir_entry de = {0};
 	for (uint32 off = 0; off < ip->size; off += sizeof(de)) {
 		if (readi(ip, 0, (uint64) &de, off, sizeof(de)) != sizeof(de)) {
 			panic("dirlookup read error");
@@ -71,7 +71,11 @@ struct vfs_inode *dirlookup(struct vfs_inode *ip, char *name)
 			continue;
 		}
 		if (!strcmp(name, de.name)) {
-			return get_inode(de.inode_num);
+			//    strcpy(ip->name, name);
+			// return get_inode(de.inode_num);
+      struct vfs_inode *inode = get_inode(de.inode_num);
+      strcpy(inode->name, name);
+      return inode;
 		}
 	}
 	return 0;

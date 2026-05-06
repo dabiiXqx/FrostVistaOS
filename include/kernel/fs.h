@@ -1,7 +1,7 @@
 #ifndef __FS_H_
 #define __FS_H_
 
-#include "kernel/spinlock.h"
+#include "kernel/sleeplock.h"
 #define VFS_DIR 0x0001
 #define VFS_FILE 0x0010
 
@@ -68,7 +68,7 @@ struct vfs_inode {
 	uint32 count;  // Reference count
 	uint32 nlinks; // Number of hard links
 	struct super_block *sb;
-	struct spinlock lock;
+	struct sleeplock lock;
 	struct vfs_inode_ops *ops; // pointer to the operations of the node
 	struct vfs_file_ops *default_f_ops;
 
