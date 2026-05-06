@@ -47,7 +47,8 @@ uint32 balloc()
 		LOG_WARN("balloc: out of space");
 	}
 	LOG_WARN("balloc: No available bits found");
-	return 0;
+	brelse(buf);
+	return -1;
 
 handle_found:
 	brelse(buf);
@@ -178,6 +179,15 @@ uint readi(struct vfs_inode *ip, int user_dst, uint64 dst, uint32 off,
 	return tot;
 }
 
+// xv6
+/**
+ * ilock - Lock inode and read node->ino to node->private_data
+ *
+ * Context: Allocate space for `private`, instantiate it, obtain the
+ * corresponding block region, convert it to a disk_inode, and copy the
+ * disk_inode data to the inode.
+ *
+ * */
 void ilock(struct vfs_inode *ip)
 {
 	struct buf *buf;
@@ -188,15 +198,16 @@ void ilock(struct vfs_inode *ip)
 	}
 
 	acquiresleep(&ip->lock);
+	// FIXME: Memory leak
 	ip->private_data = (struct easyfs_inode_info *) kalloc();
 	struct easyfs_inode_info *ei =
 	    (struct easyfs_inode_info *) ip->private_data;
 
-	uint64 blkno = (ip->ino * 64) / 0x1000;
+	uint64 blkno = ip->ino / 64;
 	buf = bread(0, blkno + 4);
 
 	dip = (struct disk_inode *) buf->data;
-	dip = &dip[ip->ino % 0xff];
+	dip = &dip[ip->ino % 64];
 
 	ip->type = dip->type;
 	ip->count = dip->nlinks;

@@ -6,6 +6,11 @@
 struct bcache bcache;
 
 // xv6
+/**
+ * binit - initialize the buffer cache
+ *
+ * Context: Initialize the block cache
+ * */
 void binit(void)
 {
 	struct buf *b;
@@ -93,7 +98,13 @@ void brelse(struct buf *b)
 }
 
 // xv6
-// Return a locked buf with the contents of the indicated block.
+/**
+ * bread - Get a block from the buffer cache or read from disk
+ *
+ * Context: First, check the cache for the data; if it isn't there, read it.
+ *
+ * Return: a locked buf with the contents of the indicated block.
+ * */
 struct buf *bread(int dev, uint64 blockno)
 {
 	struct buf *buffer;

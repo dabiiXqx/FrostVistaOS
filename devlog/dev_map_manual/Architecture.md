@@ -86,4 +86,13 @@ satp (Supervisor Address Translation and Protection)
         │                 ├── Flags (V=1, R/W/X == 0)
         │                 └── ...
         └── entries[511]
+
+
+Block  0       1       2       3       4 ... 10     11      12 ... (11+N)  ... 9999
+      +-------+-------+-------+-------+------------+-------+----------------+--------+
+      | Boot  | Super | IBmap | DBmap |   Inode    | Root  |  Init binary   |  Free  |
+      |(empty)| Block |       |       |   Area     | Dir   |  (N blocks)    |  Data  |
+      +-------+-------+-------+-------+------------+-------+----------------+--------+
+         1       1       1       1      7 blocks      1      N blocks      reset
+                                        (448 inodes)       (N = init_blocks_needed, ≤10)
 ```

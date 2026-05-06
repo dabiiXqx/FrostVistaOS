@@ -13,7 +13,7 @@ struct buf {
 	uint32 dev;
 	int dirty; // Need to update the disk
 	int valid;
-	uint64 blkno;
+	uint64 blkno; // block num
 	// Check if the read operation is complete
 	int done;
 	uint32 refcnt;

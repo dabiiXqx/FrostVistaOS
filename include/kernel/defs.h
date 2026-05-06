@@ -2,7 +2,9 @@
 #define DEFS_H
 
 #include "kernel/types.h"
+
 struct spinlock;
+struct buf;
 
 // proc.c
 int cpuid();
@@ -91,13 +93,19 @@ uint readi(struct vfs_inode *ip, int user_dst, uint64 dst, uint32 off,
 void ilock(struct vfs_inode *ip);
 void iunlock(struct vfs_inode *ip);
 
+// bcache.c
+void bwrite(struct buf *buffer);
+struct buf *bread(int dev, uint64 blockno);
+void brelse(struct buf *b);
+struct buf *bget(uint32 dev, uint64 blkno);
+void binit(void);
+
 // icache.c
 struct vfs_inode *get_inode(uint32 ino);
 void icache_init(void);
 void put_inode(struct vfs_inode *t);
 
 // virtio_disk.c
-struct buf;
 void virtio_disk_init();
 void virtio_disk_rw(struct buf *buffer, int write);
 void virtio_disk_intr();
