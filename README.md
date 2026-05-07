@@ -82,3 +82,9 @@ You should see the kernel enabling paging and jumping to the higher half address
 * **From Scratch**: Minimizing external dependencies to understand the hardware.
 
 ---
+
+## 📖 Acknowledgments
+
+In its early development stages, FrostVista OS drew significant inspiration from the **xv6** operating system developed by MIT.  
+We thank the xv6 authors for their clear, educational implementation of Unix‑like kernel concepts, which laid the foundation for our understanding of file systems, process management, and device drivers.  
+The xv6 source code and accompanying textbook (https://pdos.csail.mit.edu/6.828/2023/xv6.html) served as a primary reference throughout the initial design and implementation of FrostVista.
