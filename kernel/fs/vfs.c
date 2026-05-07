@@ -83,22 +83,6 @@ struct vfs_inode *dirlookup(struct vfs_inode *ip, char *name)
 
 struct vfs_inode_ops root_ops = {.lookup = dirlookup};
 struct vfs_inode_ops default_mock_ops = {.lookup = mock_finddir};
-struct super_block superblock = {0};
-
-// mount easyfs
-struct super_block *mount_easyfs(void)
-{
-	struct buf *b = bread(0, 1);
-	struct disk_super_block *dsb = (struct disk_super_block *) b->data;
-	if (dsb->magic == 0x0B8EE2E0) {
-		LOG_TRACE("mount_easyfs: mount success");
-	} else {
-		LOG_ERROR("mount_easyfs: mount failed");
-		panic("mount_easyfs: mount failed");
-	}
-	superblock.magic = dsb->magic;
-	return &superblock;
-};
 
 struct fs_ops fss_ops = {.mount_fs = &mount_easyfs};
 struct super_block superblk;
