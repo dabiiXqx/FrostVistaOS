@@ -12,6 +12,27 @@ extern struct file ftable[NFILE];
 
 int open(const char *path, int flags)
 {
+
+	int mode = flags & O_ACCMODE;
+	// struct vfs_inode *ip;
+	// if (flags & O_CREATE) {
+	// 	if ((ip = create((char *) path, VFS_FILE)) == 0)
+	// 		return -1;
+	// } else {
+	// 	if ((ip = namei((char *) path)) == 0)
+	// 		return 0;
+	// 	ilock(ip);
+	// 	if (ip->type == VFS_DIR && mode != O_RDONLY) {
+	// 		iunlockput(ip);
+	// 		return -1;
+	// 	}
+	// }
+	//
+	// if (ip->type == VFS_DEV) {
+	// 	iunlockput(ip);
+	// 	return -1;
+	// }
+
 	struct vfs_inode *node = vfs_lookup(vfs_root, (char *) path);
 	if (node == 0)
 		return -1;
@@ -27,8 +48,6 @@ int open(const char *path, int flags)
 	f->offset = 0;
 	f->ref_count = 1;
 	release(&ftable_lock);
-
-	int mode = flags & O_ACCMODE;
 
 	if (mode == O_RDONLY) {
 		f->readable = 1;
@@ -92,6 +111,13 @@ int filestat(int fd, uint64 user_st_addr)
 	return 0;
 }
 
+/**
+ * create - Create a file
+ *
+ * Context:
+ *
+ * Return: will holding lock in ip
+ * */
 struct vfs_inode *create(char *path, short type)
 {
 	struct vfs_inode *dp;
@@ -101,24 +127,38 @@ struct vfs_inode *create(char *path, short type)
 	if ((dp = nameiparent(path, name)) == 0)
 		return 0;
 
-	ilock(dp);
+	// If the file exists, return it
 	if ((ip = dirlookup(dp, name, 0)) != 0) {
 		iunlockput(dp);
 		ilock(ip);
 		if (type == VFS_FILE &&
-		    (ip->type == VFS_FILE || ip->type == VFS_DEV))
+		    (ip->type == VFS_FILE || ip->type == VFS_DEV)) {
+			LOG_DEBUG("create: file already exists");
 			return ip;
+		}
 		iunlockput(ip);
 		return 0;
 	}
 
+	// If the file does not exist, create it
 	if (!(ip = ialloc(0))) {
 		iunlockput(dp);
 		return 0;
 	}
 
+	// If the type is VFS_DEV, set the type
+	if (type == VFS_DEV && ip->type == 0) {
+		ilock(ip);
+		ip->type = VFS_DEV;
+		iupdate(ip);
+		iunlock(ip);
+	}
+
 	ilock(ip);
 	ip->nlinks = 1;
+	if (ip->type == 0) {
+		ip->type = type;
+	}
 	iupdate(ip);
 
 	if (type == VFS_DIR) { // Create . and ..

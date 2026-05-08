@@ -39,8 +39,8 @@ With memory and process lifecycles firmly established in v0.3, the v0.4 release 
 
 ### Phase 3 - Simple File System (Easy-FS)
  - [x] **On-Disk Layout**: Design a minimal file system backend for the VFS, featuring a superblock, block bitmap, inode array, and data blocks to validate the I/O pipeline.
- - [ ] **Directory Operations**: Implement pathname translation, hierarchical directory entry management, and basic file creation/deletion logic.
- - [ ] **File Data Management**: Map logical file offsets to physical disk blocks, ensuring safe appending and reading of file content.
+ - [x] **Directory Operations**: Implement pathname translation, hierarchical directory entry management, and basic file creation/deletion logic.
+ - [x] **File Data Management**: Map logical file offsets to physical disk blocks, ensuring safe appending and reading of file content.
 
 ### Phase 4 - Inter-Process Communication (IPC)
  - [ ] **Anonymous Pipes**: Create a bounded ring-buffer mechanism in memory to allow byte-stream communication between processes, essential for shell pipelines.

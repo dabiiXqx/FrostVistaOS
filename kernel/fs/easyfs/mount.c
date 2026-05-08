@@ -7,6 +7,7 @@
 struct super_block superblock = {0};
 
 void show_root();
+int creat_dev_tty();
 
 struct super_block *mount_easyfs(void)
 {
@@ -42,6 +43,7 @@ struct super_block *mount_easyfs(void)
 	iunlock(ip);
 
 	show_root();
+	creat_dev_tty();
 	return &superblock;
 };
 
@@ -57,4 +59,24 @@ void show_root()
 	for (int i = 0; i < root->size / sizeof(struct disk_dir_entry); i++) {
 		LOG_DEBUG("root: %s inode: %d", de[i].name, de[i].inode_num);
 	}
+}
+
+int creat_dev_tty()
+{
+	struct vfs_inode *ip;
+	struct vfs_inode *tty;
+
+	// Create /dev
+	if ((ip = create("/dev", VFS_DIR)) == 0) {
+		LOG_ERROR("create /dev error");
+		return -1;
+	}
+	releasesleep(&ip->lock);
+
+	if ((tty = create("/dev/tty", VFS_DEV)) == 0) {
+		LOG_ERROR("create /dev/tty error");
+		return -1;
+	}
+	releasesleep(&tty->lock);
+	return 0;
 }
