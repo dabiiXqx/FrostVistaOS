@@ -48,7 +48,7 @@ static int loadseg(pagetable_t pagetable, uint64 va, struct vfs_inode *inode,
 		i += n;
 	}
 
-	return 1;
+	return 0;
 }
 
 int exec(char *path)
@@ -146,7 +146,7 @@ int exec(char *path)
 		if (!copyout(user_pagetable, (char *) sp, (uint64) args[i],
 			     len)) {
 			uvmfree(user_pagetable, &new_layout);
-			return 0;
+			return -1;
 		}
 		ustack[i] = sp;
 	}

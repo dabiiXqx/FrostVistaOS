@@ -27,7 +27,7 @@ uint64 sys_write()
 	int total;
 	argint(ARG2, &total);
 	if (total < 0) {
-		return 0;
+		return -1;
 	}
 
 	if (fd < 0 || fd >= NFILE) {
@@ -57,7 +57,7 @@ uint64 sys_write()
 		if (!copyin(current_proc->pagetable, buf, (uint64) user_ptr,
 			    output)) {
 			LOG_WARN("sys_write: copyin failed");
-			return 0;
+			return -1;
 		}
 
 		buf[output] = '\0';
@@ -122,8 +122,8 @@ uint64 sys_read()
 
 		if (!copyout(current_proc->pagetable, dest, (uint64) buf,
 			     len)) {
-			LOG_WARN("sys_write: copyin failed");
-			return 0;
+			LOG_WARN("sys_read: copyout failed");
+			return -1;
 		}
 		dest += len;
 		reset -= len;
@@ -207,6 +207,6 @@ uint64 sys_exec()
 {
 	char path[PATH_MAX];
 	argstr(ARG0, path, PATH_MAX);
-	exec(path);
-	return 0;
+	int ret = exec(path);
+	return ret;
 }
