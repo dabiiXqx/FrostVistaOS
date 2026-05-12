@@ -6,11 +6,6 @@
 struct sleeplock {
 	int locked;
 	struct spinlock lock;
-	// struct spinlock {
-	// 	uint locked;
-	// 	char *name;
-	// 	struct cpu *cpu;
-	// };
 
 	char *name;
 	int pid;

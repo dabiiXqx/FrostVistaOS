@@ -104,10 +104,6 @@ void iunlockput(struct vfs_inode *ip);
 int namecmp(const char *s, const char *t);
 
 // bcache.c
-void bwrite(struct buf *buffer);
-struct buf *bread(int dev, uint64 blockno);
-void brelse(struct buf *b);
-struct buf *bget(uint32 dev, uint64 blkno);
 void binit(void);
 uint bmap(struct vfs_inode *ip, uint32 block_num);
 void bfree(uint32 dev, uint32 block_num);
@@ -124,8 +120,6 @@ void iupdate(struct vfs_inode *ip);
 void virtio_disk_init();
 void virtio_disk_rw(struct buf *buffer, int write);
 void virtio_disk_intr();
-void test_virtio_disk();
 
 void test_read_img();
-void binit(void);
 #endif

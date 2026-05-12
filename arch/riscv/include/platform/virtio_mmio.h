@@ -181,7 +181,6 @@ struct virtq_avail {
 	/* idx field indicates where the driver would put the next descriptor
 	 * entry in the ring (modulo the queue size). */
 	uint16 idx;
-	// uint16 ring[Queue size];
 	uint16 ring[VIRTIO_BLK_Q_SIZE];
 	/* Only if VIRTIO_F_EVENT_IDX*/
 	uint16 used_event;
@@ -247,9 +246,6 @@ struct virtio_blk_req {
 	uint32 type;
 	uint32 reserved;
 	uint64 sector;
-	// uint8 data[];
-	// status[NUM]
-	// uint8 status;
 };
 
 struct virtio_blk_discard_write_zeroes {
