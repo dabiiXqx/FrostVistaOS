@@ -270,11 +270,11 @@ static struct vfs_inode *namex(char *path, int nameiparent, char *name)
 	struct vfs_inode *next;
 
 	if (*path == '/') { // NOLINT(bugprone-branch-clone)
-		ip = get_inode(0);
+		ip = get_inode(EASYFS_DEV, SUPER_INUM);
 	} else {
 		// TODO: Search starting from the current working directory
 		// ip = idup(proc->cwd);
-		ip = get_inode(0);
+		ip = get_inode(EASYFS_DEV, SUPER_INUM);
 	}
 
 	while ((path = skipelem(path, name)) != 0) {

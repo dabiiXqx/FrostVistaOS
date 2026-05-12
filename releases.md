@@ -2,7 +2,6 @@
 - [ ] **Kernel Logging Subsystem**: Implement a robust logging system to capture warning/error states (e.g., unexpected `return 0` instances) to facilitate deep error analysis.
 - [ ] **Set** “normal exit” to 0 and “error exit” to -1
 - [ ] **Architecture Documentation**: Comprehensively document the system's paging mechanism, high-half mapping layout, and privilege configurations. This is critical for building a robust trap handler and facilitating future issue tracking.
-- [ ] **nvim replacement plugin**: Implement a visual quick-replace plugin and add a logging feature
 ---
 
 # 🚀 Roadmap (v0.5 - The Cleanup & Consolidation Milestone)
@@ -22,7 +21,7 @@ The critical architectural debt: `open()` resolves paths through a mock VFS tree
  - [ ] **Wire device ops through inode type**: When `open()` encounters a `VFS_DEV` inode, attach device-specific file ops rather than defaulting every inode to `uart_ops`.
 
 ## Phase 3 - Magic Number Elimination
- - [ ] **FS layout constants**: Define `EASYFS_INODE_BITMAP_BLOCK`, `EASYFS_INODE_BLOCK`, `EASYFS_DATA_START` for block numbers hardcoded as `2`, `3`, `4` in `ialloc()`, `balloc()`, and mount code.
+ - [x] **FS layout constants**: Define `EASYFS_INODE_BITMAP_BLOCK`, `EASYFS_INODE_BLOCK`, `EASYFS_DATA_START` for block numbers hardcoded as `2`, `3`, `4` in `ialloc()`, `balloc()`, and mount code.
  - [ ] **Path buffer**: Replace repeated `128`/`127` with `PATH_MAX` in `vfs.c`, `fs.c`, `sysfile.c`.
  - [ ] **Syscall argument offsets**: Replace `argint(0,...)`, `argaddr(1,...)` offset literals with named constants in `syscall.c`.
  - [ ] **Printf constants**: Name the `32`, `16`, `60` format buffer sizes in `printf.c`.

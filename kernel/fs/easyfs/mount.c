@@ -1,8 +1,10 @@
 // mount easyfs
 #include "kernel/bcache.h"
 #include "kernel/defs.h"
+#include "kernel/easyfs.h"
 #include "kernel/fs.h"
 #include "kernel/log.h"
+
 
 struct super_block superblock = {0};
 
@@ -11,9 +13,9 @@ int creat_dev_tty();
 
 struct super_block *mount_easyfs(void)
 {
-	struct buf *b = bread(0, 1);
+	struct buf *b = bread(EASYFS_DEV, SUPER_BLOCK);
 	struct disk_super_block *dsb = (struct disk_super_block *) b->data;
-	if (dsb->magic == 0x0B8EE2E0) {
+	if (dsb->magic == EASYFS_MAGIC) {
 		LOG_TRACE("mount_easyfs: Magic number 0x0B8EE2E0 matched!");
 	} else {
 		LOG_ERROR("mount_easyfs: mount failed");
@@ -26,7 +28,7 @@ struct super_block *mount_easyfs(void)
 	// struct buf *ino_buf = bread(0, 3);
 	// struct disk_inode *ino = (struct disk_inode *) ino_buf->data;
 
-	struct vfs_inode *ip = get_inode(0);
+	struct vfs_inode *ip = get_inode(EASYFS_DEV, SUPER_INUM);
 	// Get root inode data and acquire sleeplock
 	ilock(ip);
 

@@ -77,7 +77,7 @@ struct vfs_inode *dirlookup(struct vfs_inode *ip, char *name, uint32 *offset)
 			if (offset) {
 				*offset = off;
 			}
-			struct vfs_inode *inode = get_inode(de.inode_num);
+			struct vfs_inode *inode = get_inode(0, de.inode_num);
 			strcpy(inode->name, name);
 			return inode;
 		}

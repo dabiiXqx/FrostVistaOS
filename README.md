@@ -20,11 +20,9 @@
 
 FrostVista is a lightweight, educational operating system kernel targeting **RISC-V 64 (Sv39)**.
 
-Unlike typical hobby kernels that stay in physical memory, FrostVista implements a **Higher Half Kernel** architecture. It boots in M-mode, enables paging, cleans up identity mappings, and executes strictly in the upper virtual address space (`0xFFFFFFC080000000`).
-
 ---
 
-# 🚀 Roadmap (v0.5 - The Cleanup & Consolidation Milestone)
+# Roadmap (v0.5 - The Cleanup & Consolidation Milestone)
 
 With the file system operational, v0.5 tears down the development scaffolding erected during v0.4 and unifies the codebase under a single, consistent architecture. No new features — this is a pure quality milestone.
 
@@ -41,7 +39,7 @@ The critical architectural debt: `open()` resolves paths through a mock VFS tree
  - [ ] **Wire device ops through inode type**: When `open()` encounters a `VFS_DEV` inode, attach device-specific file ops rather than defaulting every inode to `uart_ops`.
 
 ## Phase 3 - Magic Number Elimination
- - [ ] **FS layout constants**: Define `EASYFS_INODE_BITMAP_BLOCK`, `EASYFS_INODE_BLOCK`, `EASYFS_DATA_START` for block numbers hardcoded as `2`, `3`, `4` in `ialloc()`, `balloc()`, and mount code.
+ - [x] **FS layout constants**: Define `EASYFS_INODE_BITMAP_BLOCK`, `EASYFS_INODE_BLOCK`, `EASYFS_DATA_START` for block numbers hardcoded as `2`, `3`, `4` in `ialloc()`, `balloc()`, and mount code.
  - [ ] **Path buffer**: Replace repeated `128`/`127` with `PATH_MAX` in `vfs.c`, `fs.c`, `sysfile.c`.
  - [ ] **Syscall argument offsets**: Replace `argint(0,...)`, `argaddr(1,...)` offset literals with named constants in `syscall.c`.
  - [ ] **Printf constants**: Name the `32`, `16`, `60` format buffer sizes in `printf.c`.
@@ -55,7 +53,7 @@ The critical architectural debt: `open()` resolves paths through a mock VFS tree
 ---
 
 
-## 🛠 Memory Layout
+## Memory Layout
 
 FrostVista utilizes the Sv39 virtual addressing scheme:
 
@@ -65,7 +63,7 @@ FrostVista utilizes the Sv39 virtual addressing scheme:
 0x0000000080000000  ->  Physical RAM Start
 ```
 
-## 🏗 Build & Run
+## Build & Run
 
 **Requirements:**
 
@@ -81,7 +79,7 @@ make run
 
 You should see the kernel enabling paging and jumping to the higher half address space in the serial console.
 
-## 📜 Philosophy
+## Philosophy
 
 * **Clarity over Cleverness**: Code is written to be understood.
 * **Architecture First**: Implementing proper OS concepts (Virtual Memory, Traps) rather than hacking features.
@@ -89,7 +87,7 @@ You should see the kernel enabling paging and jumping to the higher half address
 
 ---
 
-## 📖 Acknowledgments
+## Acknowledgments
 
 In its early development stages, FrostVista OS drew significant inspiration from the **xv6** operating system developed by MIT.  
 We thank the xv6 authors for their clear, educational implementation of Unix‑like kernel concepts, which laid the foundation for our understanding of file systems, process management, and device drivers.  

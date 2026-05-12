@@ -113,6 +113,12 @@ struct super_block {
 	struct superblock_ops *ops;
 	struct vfs_inode *root; // root of the filesystem
 	void *private_data;	// Pointer to specific data
+
+  uint32 total_blk; // total number of blocks
+  uint32 ibmip; // inode bitmap area
+  uint32 dbmit; // data bitmap area
+  uint32 ino_area; // inode area
+  uint32 datea_area; // data area
 };
 
 #endif

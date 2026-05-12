@@ -140,14 +140,12 @@ void bwrite(struct buf *buffer)
  *
  * Return: Returns the block address of the corresponding data area found
  * */
-uint32 balloc()
+uint32 balloc(uint32 dev)
 {
 	struct buf *buf;
 	uint32 data_block;
 
-	// 3 is the Data Bitmap
-	// TODO: Eliminate the Magic Number
-	buf = bread(0, 3);
+	buf = bread(dev, DABLK_BMIP);
 	for (int i = 0; i < BSIZE; i++) {
 		// All slots are currently filled
 		if (buf->data[i] == 0xFF)
@@ -160,9 +158,7 @@ uint32 balloc()
 				// Set this bit to 1
 				buf->data[i] |= temp;
 
-				// TODO: Eliminate the Magic Number
-				// 11 is the data block area
-				data_block = (i * 8) + shift + 11;
+				data_block = (i * 8) + shift + DATA_BLOCK;
 				goto handle_found;
 			}
 		}
@@ -192,17 +188,17 @@ handle_found:
  * */
 void bfree(uint32 dev, uint32 block_num)
 {
-	if (block_num < 11 || block_num >= 1000) {
+	if (block_num < DATA_BLOCK || block_num >= 1000) {
 		panic("bfree: block number out of range");
 	}
 
-	uint32 offset = block_num - 11;
+	uint32 offset = block_num - DATA_BLOCK;
 	uint32 byte_idx = offset / 8;
 	uint32 bit_idx = offset % 8;
 
 	// 3 is the Data Bitmap
 	// TODO: Eliminate the Magic Number
-	struct buf *buf = bread(dev, 3);
+	struct buf *buf = bread(dev, DABLK_BMIP);
 	int mask = (1 << bit_idx);
 
 	// Check if the block is already free
@@ -241,7 +237,7 @@ uint bmap(struct vfs_inode *ip, uint32 block_num)
 		struct easyfs_inode_info *ei =
 		    (struct easyfs_inode_info *) ip->private_data;
 		if ((addr = ei->blocks[block_num]) == 0) {
-			addr = balloc();
+			addr = balloc(0);
 			if (addr == 0)
 				return 0;
 			ei->blocks[block_num] = addr;

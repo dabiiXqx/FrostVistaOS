@@ -36,13 +36,15 @@ void icache_init(void)
  *
  * Return: pointer to the inode
  * */
-struct vfs_inode *get_inode(uint32 ino)
+struct vfs_inode *get_inode(uint32 dev, uint32 ino)
 {
 	struct vfs_inode *ip;
+	struct easyfs_inode_info *info;
 	acquire(&icache.lock);
 
 	// Check if the pointer survived until here
 	for (ip = &icache.inodes[0]; ip < &icache.inodes[NINODES]; ip++) {
+    info = (struct easyfs_inode_info *) ip->private_data;
 		if (ip->ino == ino && ip->count > 0) {
 			ip->count++;
 			release(&icache.lock);
@@ -109,7 +111,7 @@ struct vfs_inode *ialloc(uint32 dev)
 	uint32 offset;
 	uint32 ino;
 
-	struct buf *buf = bread(dev, 2);
+	struct buf *buf = bread(dev, INOBLK_BMIP);
 	for (int i = 0; i < BSIZE; i++) {
 		// All slots are currently filled
 		if (buf->data[i] == 0xFF)
@@ -122,10 +124,8 @@ struct vfs_inode *ialloc(uint32 dev)
 				// Set this bit to 1
 				buf->data[i] |= temp;
 
-				// TODO: Eliminate the Magic Number
-				// 4 is the inode block area
 				ino = (i * 8) + shift;
-				data_block = (ino / 64) + 4;
+				data_block = (ino / 64) + INODE_BLOCK;
 				offset = ino % 64;
 				goto handle_found;
 			}
@@ -149,7 +149,7 @@ handle_found:
 	brelse(data_buf);
 	LOG_TRACE("Allocated Inode %d", data_block);
 
-	return get_inode(ino);
+	return get_inode(EASYFS_DEV, ino);
 }
 
 // xv6
@@ -164,7 +164,7 @@ void iupdate(struct vfs_inode *ip)
 	uint32 blkno;
 	uint32 offset;
 
-	blkno = 4 + (ip->ino / 64);
+	blkno = INODE_BLOCK + (ip->ino / 64);
 	offset = ip->ino % 64;
 
 	bp = bread(0, blkno);

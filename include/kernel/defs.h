@@ -111,10 +111,10 @@ struct buf *bget(uint32 dev, uint64 blkno);
 void binit(void);
 uint bmap(struct vfs_inode *ip, uint32 block_num);
 void bfree(uint32 dev, uint32 block_num);
-uint32 balloc();
+uint32 balloc(uint32 dev);
 
 // icache.c
-struct vfs_inode *get_inode(uint32 ino);
+struct vfs_inode *get_inode(uint32 dev, uint32 ino);
 void icache_init(void);
 void put_inode(struct vfs_inode *ip);
 struct vfs_inode *ialloc(uint32 dev);
