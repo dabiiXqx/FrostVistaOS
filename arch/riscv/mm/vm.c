@@ -111,7 +111,7 @@ void kvminit()
  * kvminithart - Enable paging
  *
  * Context: Once the kernel page table initialization is complete, the kernel
- * is no longer empty, and satp can written to enable paging
+ * is no longer empty, and satp can be written to enable paging
  *
  * Return: void
  */
@@ -195,7 +195,7 @@ pte_t *walk(pagetable_t pagetable, uint64 va, int alloc)
 // NOTE: Requires virtual high addresses
 uint64 walk_addr(pagetable_t pagetable, uint64 va)
 {
-	// WARNING: Pay attention to the range of VA adresses
+	// WARNING: Pay attention to the range of VA addresses
 	pte_t *pte = walk(pagetable, va, 0);
 	if (pte == 0)
 		return 0;

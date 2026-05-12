@@ -135,7 +135,7 @@ m_trap_handler:
 
   mv a0, s0
 
-   #restore the scene
+   # restore the state
   # restore registers.
   ld ra, 0(a0)
   ld sp, 8(a0)

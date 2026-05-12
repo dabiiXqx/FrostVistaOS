@@ -13,10 +13,10 @@ uint64 mscratch0[NCPU * 32];
 
 __attribute__((noreturn)) void mstart(void)
 {
-	// configuer PMP. PMP will perform checks when MPP is set to S or U in
+	// configure PMP. PMP will perform checks when MPP is set to S or U in
 	// mstatus. In PMP, the three permission bits R/X/W must be set
 	//
-	// here we intend to configuer addr0 and cfg0, setting their usable
+	// here we intend to configure addr0 and cfg0, setting their usable
 	// range with an upper bound of pmpaddr0 and a lower bound of 0. Below
 	// is the original text from the manual: If PMP entry 0’s A field is set
 	// to TOR, zero is used for the lower bound, and so it matches any
@@ -35,7 +35,7 @@ __attribute__((noreturn)) void mstart(void)
 
 	uint64 x = r_mstatus();
 	// Set all lower than the two bits of the MPP to 1, then perform the AND
-	// opertaion, Only retain the position that should be 1
+	// operation, Only retain the position that should be 1
 	x &= ~MSTATUS_MPP_MASK;
 	// Set S mode, but setting it does not switch to S mode immediately
 	x |= MSTATUS_MPP_S;

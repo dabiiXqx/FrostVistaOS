@@ -108,7 +108,7 @@ struct fs_ops {
  * super_block: Super block
  * */
 struct super_block {
-	uint32 magic;	   // magic number: suppose to be 0x0B8EE2E0
+	uint32 magic;	   // magic number: supposed to be 0x0B8EE2E0
 	uint32 dev;	   // device id
 	uint32 block_size; // block size
 	struct superblock_ops *ops;

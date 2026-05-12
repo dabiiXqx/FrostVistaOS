@@ -26,7 +26,7 @@ void s_trap_handler(void)
 	if ((sc >> 63) == 1) {
 		uint64 cause = sc & ((1ULL << 63) - 1);
 		// determine if it's a timer interrupt
-		// wo notify S state by setting SIP_SSIP (Software Interrupt
+		// to notify S state by setting SIP_SSIP (Software Interrupt
 		// Pending)
 		if (cause == E_S_TIMER_INTERRUPT) {
 			// timer interrupt

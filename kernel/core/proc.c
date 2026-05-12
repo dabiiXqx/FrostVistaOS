@@ -100,14 +100,14 @@ struct Process *alloc_process(void)
 
 			// NOTE:
 			// Position the trapframe above the stack, that is, at a
-			// lower address in order to store data in the tramframe
+			// lower address in order to store data in the trapframe
 			p->trapframe =
 			    (struct trapframe *) (p->kstack + PGSIZE -
 						  sizeof(struct trapframe));
 
 			extern void usertrapret(void);
 			// NOTE: p->context must be allocated in the kernel
-			// otherwise it will be panic
+			// otherwise it will panic
 			p->context = (struct context *) kalloc();
 			if (p->context == 0) {
 				panic(

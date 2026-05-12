@@ -14,7 +14,7 @@ _start:
     addi t0, t0, 8
     j 1b
 2:
-    # 3. call main fucntion
+    # 3. call main function
     call mstart
 
 3:

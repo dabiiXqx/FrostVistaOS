@@ -42,7 +42,7 @@ uint readi(struct vfs_inode *ip, int user_dst, uint64 dst, uint32 off,
 		m = (size - tot) > (BSIZE - (off % BSIZE))
 			? BSIZE - (off % BSIZE)
 			: size - tot;
-		// `user_dest` is a boolean value, not an address, and is used
+		// `user_dst` is a boolean value, not an address, and is used
 		// to determine whether to write to user space.
 		if (user_dst) {
 			struct Process *proc = get_proc();
@@ -84,8 +84,8 @@ int writei(struct vfs_inode *ip, int user_src, uint64 src, uint32 off,
 			break;
 		bp = bread(0, addr);
 		m = min(size - tot, BSIZE - (off % BSIZE));
-		// `user_dest` is a boolean value, not an address, and is used
-		// to determine whether to write to user space.
+		// `user_src` is a boolean value, not an address, and is used
+		// to determine whether to copy from user space.
 		if (user_src) {
 			struct Process *proc = get_proc();
 			if (copyin(proc->pagetable,
@@ -199,7 +199,7 @@ void ilock(struct vfs_inode *ip)
 	memmove(ei->blocks, dip->blocks, sizeof(dip->blocks));
 
 	brelse(buf);
-	ei->vaild = 1;
+	ei->valid = 1;
 	if (ip->type == 0) {
 		// panic("ilock: no type");
 		LOG_TRACE("ilock: no type");

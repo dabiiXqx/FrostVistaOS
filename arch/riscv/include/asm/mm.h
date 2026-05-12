@@ -17,7 +17,7 @@
 #define PTE_W (1 << 2)
 // allow read
 #define PTE_R (1 << 1)
-// persent vaild
+// present valid
 #define PTE_V (1 << 0)
 
 // Copy on write

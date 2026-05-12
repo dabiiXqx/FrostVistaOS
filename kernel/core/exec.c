@@ -134,7 +134,7 @@ int exec(char *path)
 	new_layout.stack_top = user_stack_top;
 
 	// Simulated shell
-	char *args[] = {"init", "hello", "word", 0};
+	char *args[] = {"init", "hello", "world", 0};
 	int argc = 3;
 	uint64 ustack[3 + 1];
 

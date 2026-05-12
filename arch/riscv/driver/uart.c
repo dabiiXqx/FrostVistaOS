@@ -23,11 +23,11 @@ static void uart_putintr()
 	}
 
 	if (tx_empty()) {
-		uart_txintr_off(); // Disbale interrupts promptly to prevent
+		uart_txintr_off(); // Disable interrupts promptly to prevent
 				   // interrupt
 				   // storms
 	} else {
-		uart_txintr_on(); // There is still data to entered. Keep iit
+		uart_txintr_on(); // There is still data to be entered. Keep it
 				  // enabled.
 	}
 }

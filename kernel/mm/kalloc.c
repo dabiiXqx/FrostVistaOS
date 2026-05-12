@@ -29,7 +29,7 @@ void kalloc_init()
 }
 
 // enable sv39 paging and high address mapping
-// Mount all released memory to the virtul high address range
+// Mount all released memory to the virtual high address range
 static void freerange(void *pa_start, void *pa_end)
 {
 	LOG_TRACE("freerange: %p - %p", pa_start, pa_end);
@@ -46,7 +46,7 @@ static void freerange(void *pa_start, void *pa_end)
 
 // Enable sv39 paging and high address mapping
 // pa must be a high address
-// Moount virtul hight addresses after releasing memory
+// Mount virtual high addresses after releasing memory
 /**
  * kfree - Release a page
  * @va: the virtual address to free
