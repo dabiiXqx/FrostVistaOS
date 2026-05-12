@@ -24,7 +24,7 @@ The critical architectural debt: `open()` resolves paths through a mock VFS tree
  - [x] **FS layout constants**: Define `EASYFS_INODE_BITMAP_BLOCK`, `EASYFS_INODE_BLOCK`, `EASYFS_DATA_START` for block numbers hardcoded as `2`, `3`, `4` in `ialloc()`, `balloc()`, and mount code.
  - [x] **Path buffer**: Replace repeated `128`/`127` with `PATH_MAX` in `vfs.c`, `fs.c`, `sysfile.c`.
  - [x] **Syscall argument offsets**: Replace `argint(0,...)`, `argaddr(1,...)` offset literals with named constants in `syscall.c`.
- - [ ] **Printf constants**: Name the `32`, `16`, `60` format buffer sizes in `printf.c`.
+ - [x] **Printf constants**: Name the `32`, `16`, `60` format buffer sizes in `printf.c`.
 
 ## Phase 4 - Code Quality Fixes
  - [ ] **Fix typos and spelling errors** across the codebase (struct fields, comments, log messages).

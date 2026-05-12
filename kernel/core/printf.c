@@ -8,6 +8,9 @@
 static const char digits[] = "0123456789abcdef";
 struct spinlock console_lock = {.name = "console_lock", .locked = 0, .cpu = 0};
 
+#define RADIX_DEC 10
+#define RADIX_HEX 16
+
 void kputc(char c)
 {
 	hal_console_putc(c);
@@ -64,17 +67,16 @@ void vkprintf(const char *fmt, va_list ap)
 			continue;
 		}
 
-		// 处理格式串
 		char c = fmt[++i];
 		if (c == '\0')
 			break;
 
 		switch (c) {
 		case 'd':
-			kprintint(va_arg(ap, int), 10, 1);
+			kprintint(va_arg(ap, int), RADIX_DEC, 1);
 			break;
 		case 'x':
-			kprintint(va_arg(ap, uint), 16, 0);
+			kprintint(va_arg(ap, uint), RADIX_HEX, 0);
 			break;
 		case 'p':
 			kprintptr(va_arg(ap, uint64));
