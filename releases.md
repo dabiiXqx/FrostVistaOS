@@ -28,7 +28,7 @@ The critical architectural debt: `open()` resolves paths through a mock VFS tree
 
 ## Phase 4 - Code Quality Fixes
  - [ ] **Fix typos and spelling errors** across the codebase (struct fields, comments, log messages).
- - [ ] **Normalize log levels**: Audit every `LOG_*` call site — errors should use `LOG_ERROR`, warnings `LOG_WARN`, normal operations `LOG_DEBUG` or `LOG_TRACE`. Fix inconsistencies like `sys_write` logging a permissions failure at TRACE while the file-not-found case uses ERROR.
+ - [x] **Normalize log levels**: Audit every `LOG_*` call site — errors should use `LOG_ERROR`, warnings `LOG_WARN`, normal operations `LOG_DEBUG` or `LOG_TRACE`. Fix inconsistencies like `sys_write` logging a permissions failure at TRACE while the file-not-found case uses ERROR.
  - [ ] **Remove dead declarations** from header files (commented-out structs, unused function prototypes).
  - [ ] **Lock documentation**: Document the sleeplock acquire/release contract for each inode function — what lock is held on entry, who releases it, and why certain functions expect the caller to release.
 

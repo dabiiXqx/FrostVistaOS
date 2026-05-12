@@ -43,7 +43,7 @@ uint64 sys_write()
 		return -1;
 	}
 	if (!file->writable) {
-		LOG_TRACE("sys_write: file %d not writable", fd);
+		LOG_ERROR("sys_write: file %d not writable", fd);
 		return -1;
 	}
 
@@ -101,6 +101,7 @@ uint64 sys_read()
 		return -1;
 	}
 	if (!file->readable) {
+		LOG_ERROR("sys_read: file %d not readable", fd);
 		return -1;
 	}
 

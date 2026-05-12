@@ -65,7 +65,7 @@ struct vfs_inode *get_inode(uint32 dev, uint32 ino)
 		}
 	}
 
-	LOG_WARN("get_inode: no inodes");
+	LOG_ERROR("get_inode: no inodes");
 
 	release(&icache.lock);
 	return 0;

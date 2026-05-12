@@ -442,7 +442,7 @@ void freewalk(pagetable_t pagetable)
 			pagetable[i] = 0;
 		} else if (pte & PTE_V) {
 			LOG_TRACE("freewalk: leaf node %p", (void *) pagetable);
-			LOG_WARN("freewalk: leaf node still exists!");
+			LOG_ERROR("freewalk: leaf node still exists!");
 		}
 	}
 	kfree((void *) pagetable);
