@@ -1,6 +1,6 @@
 ## 🎯 TODO
 - [ ] **Kernel Logging Subsystem**: Implement a robust logging system to capture warning/error states (e.g., unexpected `return 0` instances) to facilitate deep error analysis.
-- [ ] **Set** “normal exit” to 0 and “error exit” to -1
+- [x] **Set** “normal exit” to 0 and “error exit” to -1
 - [ ] **Architecture Documentation**: Comprehensively document the system's paging mechanism, high-half mapping layout, and privilege configurations. This is critical for building a robust trap handler and facilitating future issue tracking.
 ---
 

@@ -48,6 +48,7 @@ The critical architectural debt: `open()` resolves paths through a mock VFS tree
  - [x] **Fix typos and spelling errors** across the codebase (struct fields, comments, log messages).
  - [x] **Normalize log levels**: Audit every `LOG_*` call site — errors should use `LOG_ERROR`, warnings `LOG_WARN`, normal operations `LOG_DEBUG` or `LOG_TRACE`. Fix inconsistencies like `sys_write` logging a permissions failure at TRACE while the file-not-found case uses ERROR.
  - [x] **Remove dead declarations** from header files (commented-out structs, unused function prototypes).
+ - [x] **Return value convention**: Fix error paths returning 0 instead of -1 in sys_write, sys_read, sys_exec, exec, and loadseg.
  - [ ] **Lock documentation**: Document the sleeplock acquire/release contract for each inode function — what lock is held on entry, who releases it, and why certain functions expect the caller to release.
 
 ---
